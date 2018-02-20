@@ -14,20 +14,24 @@ mkdir $HOME/bin
 cp -v pomodoro fs.png $HOME/bin
 ```
 
-#### Chmod and run
+## Usage
+
+#### Start pomodoro counter:
 ```bash
-chmod +x $HOME/bin/pomodoro
+pomodoro --pomodoros 4
+```
 
+#### Show pomodoros completed
+```bash
+pomodoro --list
+```
+
+#### Delete pomodoros list
+```bash
+pomodoro --delete
+```
+
+#### Show help menù
+```bash
 pomodoro --help
-pomodoro 0.1.0
-Pomodoro technique counter for study sessions.
-
-usage: pomodoro [option]
-
-options:
--h, --help | show this help menu
--v, --version | show program version
--p, --pomodoros [number] | number of pomodoros
--l, --list | show pomodoros completed
--d, --delete | delete pomodoros list
 ```
