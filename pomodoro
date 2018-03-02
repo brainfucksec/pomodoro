@@ -2,8 +2,8 @@
 
 #######################################################################
 # Program: pomodoro.sh
-# Version: 0.1.0
-# Operating Systems: Unix
+# Version: 0.1.1
+# Operating Systems: UNIX
 # Description: Pomodoro technique counter for study sessions.
 # https://en.wikipedia.org/wiki/Pomodoro_Technique
 #
@@ -34,7 +34,7 @@ set -eo pipefail
 
 # Program's informations
 readonly program="pomodoro"
-readonly version="0.1.0"
+readonly version="0.1.1"
 readonly author="Brainfuck"
 
 # Initialize arguments
@@ -84,9 +84,9 @@ ctrl_c() {
 }
 
 
-# Display date and time format "dd/mm/yy H:M:S"
+# Display date and time format "YYYY-MM-DD H:M:S"
 date_format() {
-    date "+%d/%m/%y %T"
+    date "+%Y-%m-%d %T"
 }
 
 
