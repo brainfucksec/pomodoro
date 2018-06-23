@@ -2,7 +2,7 @@
 
 #######################################################################
 # Program: pomodoro.sh
-# Version: 0.1.1
+# Version: 0.1.2
 # Operating Systems: UNIX
 # Description: Pomodoro technique counter for study sessions.
 # https://en.wikipedia.org/wiki/Pomodoro_Technique
@@ -32,12 +32,12 @@
 # i.e. exit immediately from program if errors occurs
 set -eo pipefail
 
-# Program's informations
-readonly program="pomodoro"
-readonly version="0.1.1"
+# Program information
+readonly program_name="pomodoro"
+readonly version="0.1.2"
 readonly author="Brainfuck"
 
-# Initialize arguments
+# Arguments, arguments num
 readonly args="$*"
 readonly argnum="$#"
 
@@ -63,20 +63,19 @@ readonly image="$HOME/bin/img/fs.png"
 
 # Show program version
 show_version() {
-    printf "${white}%s${endc}\\n" "$program $version"
-    printf "${white}%s${endc}\\n" "Copyright © 2017-2018 Brainfuck"
-    printf "${white}%s${endc}\\n" \
+    printf "%s\\n" "$program_name $version"
+    printf "%s\\n" "Copyright (C) 2017-2018 Brainfuck"
+    printf "%s\\n" \
            "License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>."
-    printf "${white}%s${endc}\\n" \
+    printf "%s\\n" \
            "This is free software: you are free to change and redistribute it."
-    printf "${white}%s${endc}\\n"  \
+    printf "%s\\n" \
            "There is NO WARRANTY, to the extent permitted by law."
     exit 0
 }
 
 
-# Trap ctrl-c (call ctrl_c function)
-# exit from program if user type Ctrl+c
+# Exit from program if user type Ctrl+c
 trap ctrl_c INT
 ctrl_c() {
     printf "\\n%s\\n" "Ctrl+c... exit!"
@@ -84,7 +83,7 @@ ctrl_c() {
 }
 
 
-# Display date and time format "YYYY-MM-DD H:M:S"
+# Display date and time, format: "YYYY-MM-DD H:M:S"
 date_format() {
     date "+%Y-%m-%d %T"
 }
@@ -108,7 +107,7 @@ ${endc}\\n"
 }
 
 
-# Write pomodoros completed to list
+# Write pomodoros completed to done list
 add_to_list() {
     printf "%s\\n" "[*] pomodoro++ - $(date_format)" >>"$done_list"
 }
@@ -121,7 +120,7 @@ del_from_list() {
         printf "${green}%s${endc}\\n" "[i] pomodoros list deleted"
         exit 0
     else
-        printf "${white}%s${endc}\\n" "[i] pomodoros list already empty"
+        printf "${green}%s${endc}\\n" "[i] pomodoros list already empty"
         exit 0
     fi
 }
@@ -130,7 +129,7 @@ del_from_list() {
 # Show pomodoros completed
 show_completed() {
     if [[ ! -f "$done_list" ]]; then
-        printf "${white}%s${endc}\\n" "There are no pomodoros here :("
+        printf "${green}%s${endc}\\n" "There are no pomodoros here :("
         exit 0
     else
         less -FX "$done_list"
@@ -218,15 +217,19 @@ main() {
 
 # Show help menù
 usage() {
-    printf "${white}%s\\n" "$program $version"
-    printf "%s\\n\\n" "Pomodoro technique counter for study sessions."
-    printf "%s\\n\\n" "usage: $program [option]"
-    printf "%s\\n" "options:"
-    printf "%s\\n" "-h, --help | show this help menu"
-    printf "%s\\n" "-v, --version | show program version"
-    printf "%s\\n" "-p, --pomodoros [number] | number of pomodoros"
-    printf "%s\\n" "-l, --list | show pomodoros completed"
-    printf "%s${endc}\\n" "-d, --delete | delete pomodoros list"
+cat << EOF
+$program_name $version
+Pomodoro technique counter for study sessions.
+
+Usage: $program_name [option]
+
+Options:
+-h, --help           Show this help menù
+-p, --pomodoros [n]  Number of pomodoros
+-l, --list           Show completed pomodoros
+-d, --delete         Delete pomodoros list
+-v, --version        Show program version
+EOF
 }
 
 
@@ -259,15 +262,9 @@ while [ "$#" -gt 0 ]; do
         -d | --delete)
             del_from_list
             ;;
-        --)
-            break
-            ;;
-        -*)
+        -- | -* | *)
             printf "${red}%s${endc}\\n" "Error: invalid option '$1' !" >&2
-            exit 1
-            ;;
-        *)
-            printf "${red}%s${endc}\\n" "Error: invalid option '$1' !" >&2
+            printf "%s\\n" "Try '$program_name --help' for more information."
             exit 1
             ;;
         esac
