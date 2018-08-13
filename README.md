@@ -3,16 +3,11 @@
 [Pomodoro technique](https://en.wikipedia.org/wiki/Pomodoro_Technique) counter for study sessions.
 
 ## Install
-
-### Create `bin` directory in your home
 ```bash
-mkdir $HOME/bin
-```
-
-### Copy `pomodoro.sh` and `fs.png` files in the `bin` directory
-```bash
-cp -v pomodoro.sh $HOME/bin/pomodoro
-cp -v fs.png $HOME/bin
+git clone https://github.com/brainfucksec/pomodoro
+cd pomodoro
+chmod +x install.sh
+./install.sh
 ```
 
 ## Usage

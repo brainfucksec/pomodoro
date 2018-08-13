@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
 #######################################################################
-# Program: pomodoro.sh
-# Version: 0.1.2
-# Operating Systems: UNIX
-# Description: Pomodoro technique counter for study sessions.
-# https://en.wikipedia.org/wiki/Pomodoro_Technique
+# pomodoro.sh
+#
+# Pomodoro technique counter for study sessions.
+# > https://en.wikipedia.org/wiki/Pomodoro_Technique
 #
 # Copyright (C) 2017-2018 Brainfuck
 #
@@ -34,7 +33,7 @@ set -eo pipefail
 
 # Program information
 readonly program_name="pomodoro"
-readonly version="0.1.2"
+readonly version="0.2.0"
 readonly author="Brainfuck"
 
 # Arguments, arguments num
@@ -54,25 +53,12 @@ readonly session_time=1500
 readonly pause_time=300
 readonly longpause_time=900
 
-# File paths
+# File paths:
 # done_list = file to write the pomodoros completed
 # image = image shown with notify-d
 readonly done_list="/tmp/pomodoros.txt"
-readonly image="$HOME/bin/img/fs.png"
-
-
-# Show program version
-show_version() {
-    printf "%s\\n" "$program_name $version"
-    printf "%s\\n" "Copyright (C) 2017-2018 Brainfuck"
-    printf "%s\\n" \
-           "License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>."
-    printf "%s\\n" \
-           "This is free software: you are free to change and redistribute it."
-    printf "%s\\n" \
-           "There is NO WARRANTY, to the extent permitted by law."
-    exit 0
-}
+readonly image="$HOME/.local/share/pomodoro/fs.png"
+readonly notice_sound="$HOME/.local/share/pomodoro/alarm.wav"
 
 
 # Exit from program if user type Ctrl+c
@@ -86,6 +72,20 @@ ctrl_c() {
 # Display date and time, format: "YYYY-MM-DD H:M:S"
 date_format() {
     date "+%Y-%m-%d %T"
+}
+
+
+# Show program version
+show_version() {
+    printf "%s\\n" "$program_name $version"
+    printf "%s\\n" "Copyright (C) 2017-2018 Brainfuck"
+    printf "%s\\n" \
+           "License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>."
+    printf "%s\\n" \
+           "This is free software: you are free to change and redistribute it."
+    printf "%s\\n" \
+           "There is NO WARRANTY, to the extent permitted by law."
+    exit 0
 }
 
 
@@ -129,21 +129,10 @@ del_from_list() {
 # Show pomodoros completed
 show_completed() {
     if [[ ! -f "$done_list" ]]; then
-        printf "${green}%s${endc}\\n" "There are no pomodoros here :("
+        printf "${green}%s${endc}\\n" "[i] No pomodoros have been completed"
         exit 0
     else
         less -FX "$done_list"
-    fi
-}
-
-
-# Check the user input
-check_input(){
-    # when the option `-p, --pomodoros` is passed,
-    # only an integer of 1 to 100 is valid
-    if [[ ! "${pomodoros}" =~ ^([1-9]|1[0-9]|2[0-9]|100)$ ]]; then
-        printf "${red}%s${endc}\\n" "Error: enter an integer of 1 to 100!"
-        exit 1
     fi
 }
 
@@ -180,6 +169,31 @@ display_info() {
 }
 
 
+# Play notice sound at start/stop of pomodoros, try first with `aplay`
+# command then fall back to `paplay` if aplay doesn't exist,
+# do nothing if the sound can not be played.
+# aplay = Alsa
+# paplay = PulseAudio
+play_sound() {
+    if ! aplay --quiet "$notice_sound" 2>/dev/null; then
+        paplay "$notice_sound" 2>/dev/null;
+    else
+        :
+    fi
+}
+
+
+# Check the user input
+check_input(){
+    # when the option `-p, --pomodoros` is passed,
+    # only an integer of 1 to 100 is valid
+    if [[ ! "${pomodoros}" =~ ^([1-9]|1[0-9]|2[0-9]|100)$ ]]; then
+        printf "${red}%s${endc}\\n" "Error: enter an integer of 1 to 100!"
+        exit 1
+    fi
+}
+
+
 # Start program
 main() {
 	banner
@@ -192,17 +206,22 @@ main() {
 
         # start 25 min pomodoro session
         display_info "start"
+        play_sound
 		sleep "$session_time"
+
+        # add pomodoro to list at the end of session
         add_to_list
 
         # make long pause (15 min) after 4 pomodoros
         if [[ "$count_cycle" = 4 ]]; then
             display_info "long_pause"
+            play_sound
             count_cycle=0
             sleep "$longpause_time"
         else
         # short pause (5 min) after each pomodoro
             display_info "pause"
+            play_sound
             sleep "$pause_time"
         fi
 	done
