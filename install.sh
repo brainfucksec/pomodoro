@@ -14,7 +14,7 @@
 set -euo pipefail
 
 PROG_NAME="pomodoro"
-VERSION="0.2.0"
+VERSION="0.2.1"
 PROG_DIR="$HOME/bin"
 DATA_DIR="$HOME/.local/share"
 

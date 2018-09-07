@@ -33,7 +33,7 @@ set -eo pipefail
 
 # Program information
 readonly program_name="pomodoro"
-readonly version="0.2.0"
+readonly version="0.2.1"
 readonly author="Brainfuck"
 
 # Arguments, arguments num
@@ -114,7 +114,7 @@ add_to_list() {
 
 
 # Delete pomodoros list
-del_from_list() {
+delete_list() {
     if [ -f "$done_list" ]; then
         rm "$done_list"
         printf "${green}%s${endc}\\n" "[i] pomodoros list deleted"
@@ -185,8 +185,8 @@ play_sound() {
 
 # Check the user input
 check_input(){
-    # when the option `-p, --pomodoros` is passed,
-    # only an integer of 1 to 100 is valid
+    # for option `-p, --pomodoros`,
+    # the only valid argument is an integer of 1 to 100.
     if [[ ! "${pomodoros}" =~ ^([1-9]|1[0-9]|2[0-9]|100)$ ]]; then
         printf "${red}%s${endc}\\n" "Error: enter an integer of 1 to 100!"
         exit 1
@@ -255,8 +255,9 @@ EOF
 # Parse command line options
 # thanks to dgoguerra for this 'getopt handmade' implementation
 # https://gist.github.com/dgoguerra/9206418
-if [ "$#" == "0" ]; then
-    usage
+if [ "$#" == 0 ]; then
+    printf "%s\\n" "$program_name: Argument required"
+    printf "%s\\n" "Try '$program_name --help' for more information."
     exit 1
 fi
 
@@ -279,13 +280,13 @@ while [ "$#" -gt 0 ]; do
             show_completed
             ;;
         -d | --delete)
-            del_from_list
+            delete_list
             ;;
         -- | -* | *)
-            printf "${red}%s${endc}\\n" "Error: invalid option '$1' !" >&2
+            printf "${red}%s${endc}\\n" "Error: invalid option '$1' !"
             printf "%s\\n" "Try '$program_name --help' for more information."
             exit 1
             ;;
-        esac
-        shift
+    esac
+    shift
 done
