@@ -6,7 +6,7 @@
 # Pomodoro technique counter for study sessions.
 # > https://en.wikipedia.org/wiki/Pomodoro_Technique
 #
-# Copyright (C) 2017-2018 Brainfuck
+# Copyright (C) 2017-2019 Brainfuck
 #
 #
 # GNU GENERAL PUBLIC LICENSE
@@ -33,20 +33,24 @@ set -eo pipefail
 
 # Program information
 readonly program_name="pomodoro"
-readonly version="0.2.1"
+readonly version="0.3.0"
 readonly author="Brainfuck"
 
 # Arguments, arguments num
 readonly args="$*"
 readonly argnum="$#"
 
-# Output colors
+# Output colors (b = bold colors)
 export red=$'\e[0;91m'
 export green=$'\e[0;92m'
 export blue=$'\e[0;94m'
-export bold_blue=$'\e[1;94m'
 export white=$'\e[0;97m'
 export endc=$'\e[0m'
+
+export bgreen=$'\e[1;92m'
+export bblue=$'\e[1;94m'
+export bwhite=$'\e[1;97m'
+
 
 # Pomodoros and pauses time settings
 readonly session_time=1500
@@ -69,16 +73,25 @@ ctrl_c() {
 }
 
 
-# Display date and time, format: "YYYY-MM-DD H:M:S"
-date_format() {
-    date "+%Y-%m-%d %T"
+# Parse and show date/time
+time_format() {
+    case "$1" in
+        my_date)
+            # format: "YYYY-MM-DD H:M:S"
+            date "+%Y-%m-%d %T"
+        ;;
+        my_time)
+            # format "H:M:S"
+            date "+%T"
+        ;;
+    esac
 }
 
 
 # Show program version
 show_version() {
     printf "%s\\n" "$program_name $version"
-    printf "%s\\n" "Copyright (C) 2017-2018 Brainfuck"
+    printf "%s\\n" "Copyright (C) 2017-2019 Brainfuck"
     printf "%s\\n" \
            "License GPLv3+: GNU GPL version 3 or later <https://gnu.org/licenses/gpl.html>."
     printf "%s\\n" \
@@ -91,25 +104,22 @@ show_version() {
 
 # Display banner when program start
 banner() {
-    printf "${bold_blue}
-===================================
+    printf "${bblue}
                      _
  ___ ___ _____ ___ _| |___ ___ ___
 | . | . |     | . | . | . |  _| . |
 |  _|___|_|_|_|___|___|___|_| |___|
-|_|
+|_|                                v$version
 
-===================================
-
-Version: $version
+Pomodoro technique counter for study sessions
 Author: $author
-${endc}\\n"
+${endc}\\n\\n"
 }
 
 
 # Write pomodoros completed to done list
 add_to_list() {
-    printf "%s\\n" "[*] pomodoro++ - $(date_format)" >>"$done_list"
+    printf "%s\\n" "[*] pomodoro++ - $(time_format 'my_date')" >>"$done_list"
 }
 
 
@@ -129,7 +139,7 @@ delete_list() {
 # Show pomodoros completed
 show_completed() {
     if [[ ! -f "$done_list" ]]; then
-        printf "${green}%s${endc}\\n" "[i] No pomodoros have been completed"
+        printf "${red}%s${endc}\\n" "[i] No pomodoros have been completed"
         exit 0
     else
         less -FX "$done_list"
@@ -140,40 +150,43 @@ show_completed() {
 # Display the info shown on terminal and with notify-d
 # dependency: libnotify; https://developer.gnome.org/libnotify
 display_info() {
-    local msg_1="[ POMODORO STARTED ]"
-    local msg_2="[ PAUSE ]"
-    local msg_3="[ LONG PAUSE ]"
-    local msg_4="[ POMODOROS SESSION COMPLETED ]"
+    local msg_1="Pomodoro started"
+    local msg_2="Pause"
+    local msg_3="Long Pause"
+    local msg_4="Pomodoros sessions completed"
 
+    # notify-send -t, --expire-time=TIME, -i, --icon=ICON [MSG]
     case "$1" in
         start)
-            # notify-send -t, --expire-time=TIME, -i, --icon=ICON [MSG]
             notify-send -t 10000 -i "$image" "$msg_1"
-            printf "${white}%s${endc}\\n" "$msg_1"
-            printf "${bold_blue}%s${endc} ${green}%s${endc}\\n" "==>" "GO GO GO! ..."
+            printf "${bgreen}%s ${white}%s ${bblue}%s${endc}\\n" \
+                "==>" "$(time_format 'my_time'):" "$msg_1"
         ;;
         pause)
             notify-send -t 10000 -i "$image" "$msg_2"
-            printf "\\n${white}%s${endc}\\n\\n" "$msg_2"
+            printf "${bgreen}%s ${white}%s ${bblue}%s${endc}\\n" \
+                   "==>" "$(time_format 'my_time'):" "$msg_2"
         ;;
         long_pause)
             notify-send -t 10000 -i "$image" "$msg_3"
-            printf "\\n${white}%s${endc}\\n\\n" "$msg_3"
+            printf "${bgreen}%s ${white}%s ${bblue}%s${endc}\\n" \
+                   "==>" "$(time_format 'my_time'):" "$msg_3"
         ;;
         end_session)
             notify-send -t 10000 -i "$image" "$msg_4"
-            printf "${bold_blue}%s${endc}\\n" "$msg_4"
+            printf "${bblue}%s ${white}%s ${bblue}%s${endc}\\n" \
+                   "==>" "$(time_format 'my_time'):" "$msg_4"
+
             printf "\\n${white}%s${endc}\\n\\n" "A day without learning is a day wasted"
         ;;
     esac
 }
 
 
-# Play notice sound at start/stop of pomodoros, try first with `aplay`
-# command then fall back to `paplay` if aplay doesn't exist,
+# Play notice sound at start/stop of pomodoros, try commands:
+# try 1 = `aplay` (Alsa)
+# try 2 = `paplay` (Pulseaudio)
 # do nothing if the sound can not be played.
-# aplay = Alsa
-# paplay = PulseAudio
 play_sound() {
     if ! aplay --quiet "$notice_sound" 2>/dev/null; then
         paplay "$notice_sound" 2>/dev/null;
@@ -194,20 +207,20 @@ check_input(){
 }
 
 
-# Start program
-main() {
-	banner
+# Start pomodoro counter
+start_counter() {
+    banner
     check_input
 
 	# begin pomodoros cycle
-    count_cycle=0
+    local count_cycle=0
 	for ((c = 1; c <= "$pomodoros"; c++)); do
         count_cycle="$((count_cycle + 1))"
 
         # start 25 min pomodoro session
         display_info "start"
         play_sound
-		sleep "$session_time"
+        sleep "$session_time"
 
         # add pomodoro to list at the end of session
         add_to_list
@@ -243,50 +256,54 @@ Pomodoro technique counter for study sessions.
 Usage: $program_name [option]
 
 Options:
--h, --help           Show this help menù
--p, --pomodoros [n]  Number of pomodoros
--l, --list           Show completed pomodoros
--d, --delete         Delete pomodoros list
--v, --version        Show program version
+-h, --help              Show this help menù
+-p, --pomodoros [n]     Number of pomodoros
+-l, --list              Show completed pomodoros
+-d, --delete            Delete pomodoros list
+-v, --version           Show program version
 EOF
 }
 
 
-# Parse command line options
-# thanks to dgoguerra for this 'getopt handmade' implementation
-# https://gist.github.com/dgoguerra/9206418
-if [ "$#" == 0 ]; then
-    printf "%s\\n" "$program_name: Argument required"
-    printf "%s\\n" "Try '$program_name --help' for more information."
-    exit 1
-fi
+# Main function: parse command line options.
+# Thanks to dgoguerra for this 'getopt handmade' implementation
+# see: https://gist.github.com/dgoguerra/9206418
+main(){
+    if [ "$#" -eq 0 ]; then
+        printf "%s\\n" "$program_name: Argument required"
+        printf "%s\\n" "Try '$program_name --help' for more information."
+        exit 1
+    fi
 
-while [ "$#" -gt 0 ]; do
-    case "$1" in
-        -h | --help)
-            usage
-            exit 0
-            ;;
-        -v | --version)
-            show_version
-            exit 0
-            ;;
-        -p | --pomodoros)
-            pomodoros="$2"
-            main
-            shift
-            ;;
-        -l | --list)
-            show_completed
-            ;;
-        -d | --delete)
-            delete_list
-            ;;
-        -- | -* | *)
-            printf "${red}%s${endc}\\n" "Error: invalid option '$1' !"
-            printf "%s\\n" "Try '$program_name --help' for more information."
-            exit 1
-            ;;
-    esac
-    shift
-done
+    while [ "$#" -gt 0 ]; do
+        case "$1" in
+            -h | --help)
+                usage
+                exit 0
+                ;;
+            -v | --version)
+                show_version
+                exit 0
+                ;;
+            -p | --pomodoros)
+                pomodoros="$2"
+                start_counter
+                shift
+                ;;
+            -l | --list)
+                show_completed
+                ;;
+            -d | --delete)
+                delete_list
+                ;;
+            -- | -* | *)
+                printf "${red}%s${endc}\\n\\n" "Error: invalid option '$1'!"
+                usage
+                exit 1
+                ;;
+        esac
+        shift
+    done
+}
+
+main "$@"
