@@ -33,7 +33,7 @@ set -eo pipefail
 
 # Program information
 readonly program_name="pomodoro"
-readonly version="0.3.0"
+readonly version="0.3.1"
 readonly author="Brainfuck"
 
 # Arguments, arguments num
@@ -53,9 +53,9 @@ export bwhite=$'\e[1;97m'
 
 
 # Pomodoros and pauses time settings
-readonly session_time=1500
-readonly pause_time=300
-readonly longpause_time=900
+readonly session_time=6 #1500
+readonly pause_time=3 #300
+readonly longpause_time=4 #900
 
 # File paths:
 # done_list = file to write the pomodoros completed
@@ -164,17 +164,17 @@ display_info() {
         ;;
         pause)
             notify-send -t 10000 -i "$image" "$msg_2"
-            printf "${bgreen}%s ${white}%s ${bblue}%s${endc}\\n" \
+            printf "${bred}%s ${white}%s ${bblue}%s${endc}\\n" \
                    "==>" "$(time_format 'my_time'):" "$msg_2"
         ;;
         long_pause)
             notify-send -t 10000 -i "$image" "$msg_3"
-            printf "${bgreen}%s ${white}%s ${bblue}%s${endc}\\n" \
+            printf "${bred}%s ${white}%s ${bblue}%s${endc}\\n" \
                    "==>" "$(time_format 'my_time'):" "$msg_3"
         ;;
         end_session)
             notify-send -t 10000 -i "$image" "$msg_4"
-            printf "${bblue}%s ${white}%s ${bblue}%s${endc}\\n" \
+            printf "${bgreen}%s ${white}%s ${bblue}%s${endc}\\n" \
                    "==>" "$(time_format 'my_time'):" "$msg_4"
 
             printf "\\n${white}%s${endc}\\n\\n" "A day without learning is a day wasted"
@@ -209,8 +209,8 @@ check_input(){
 
 # Start pomodoro counter
 start_counter() {
-    banner
     check_input
+    banner
 
 	# begin pomodoros cycle
     local count_cycle=0
@@ -218,8 +218,11 @@ start_counter() {
         count_cycle="$((count_cycle + 1))"
 
         # start 25 min pomodoro session
+        # dispaly info and play beep sound
         display_info "start"
         play_sound
+
+        # sleep for N minutes (`session_time`)
         sleep "$session_time"
 
         # add pomodoro to list at the end of session
