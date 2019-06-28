@@ -53,9 +53,9 @@ export bwhite=$'\e[1;97m'
 
 
 # Pomodoros and pauses time settings
-readonly session_time=6 #1500
-readonly pause_time=3 #300
-readonly longpause_time=4 #900
+readonly session_time=1500
+readonly pause_time=300
+readonly longpause_time=900
 
 # File paths:
 # done_list = file to write the pomodoros completed
