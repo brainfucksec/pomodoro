@@ -4,7 +4,7 @@
 #
 # install - install a program, script, or datafile
 #
-# Copyright (C) 2017-2019 Brainfuck
+# Copyright (C) 2017-2022 brainf+ck
 #
 # This script is compatible with the BSD install script, but was written
 # from scratch.  It can only install one file at a time, a restriction
@@ -14,7 +14,7 @@
 set -euo pipefail
 
 PROG_NAME="pomodoro"
-VERSION="0.3.1"
+VERSION="0.4.0"
 PROG_DIR="$HOME/bin"
 DATA_DIR="$HOME/.local/share"
 
