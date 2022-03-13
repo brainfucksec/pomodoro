@@ -34,7 +34,7 @@ set -eo pipefail
 
 # Program information
 readonly program_name="pomodoro"
-readonly version="0.4.0"
+readonly version="0.4.1"
 readonly author="brainf+ck"
 
 # Arguments, arguments num
@@ -123,7 +123,7 @@ add_to_list() {
 
 # Delete pomodoros list
 delete_list() {
-    if [ -f "${done_list}" ]; then
+    if [[ -f "${done_list}" ]]; then
         rm "${done_list}"
         printf "${green}%s${endc}\\n" "[i] pomodoros list deleted"
         exit 0
