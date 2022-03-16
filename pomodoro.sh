@@ -34,7 +34,7 @@ set -eo pipefail
 
 # Program information
 readonly program_name="pomodoro"
-readonly version="0.4.1"
+readonly version="0.4.2"
 readonly author="brainf+ck"
 
 # Arguments, arguments num
@@ -195,7 +195,7 @@ play_sound() {
 
 
 # Check the user input
-check_input(){
+check_input() {
     # for option `-p, --pomodoros`,
     # the only valid argument is an integer of 1 to 100.
     if [[ ! "${pomodoros}" =~ ^([1-9]|1[0-9]|2[0-9]|100)$ ]]; then
@@ -271,7 +271,7 @@ EOF
 # Main function: parse command line options.
 # Thanks to dgoguerra for this 'getopt handmade' implementation
 # see: https://gist.github.com/dgoguerra/9206418
-main(){
+main() {
     if [[ "$#" -eq 0 ]]; then
         printf "%s\\n" "${program_name}: Argument required"
         printf "%s\\n" "Try '${program_name} --help' for more information."
